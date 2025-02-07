@@ -1,25 +1,21 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import Traffic from "./components/Traffic/Traffic";
+import Pollution from "./components/Pollution/Pollution";
+import Waste from "./components/Waste/Waste";
+import Metering from "./components/Metering/Metering";
+import Dashboard from "./components/Dashboard/Dashboard";
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>🏙 Smart City Management</h1>
+      <Dashboard />
+      <Traffic />
+      <Pollution />
+      <Waste />
+      <Metering />
     </div>
   );
-}
+};
 
 export default App;

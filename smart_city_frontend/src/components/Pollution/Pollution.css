@@ -1,0 +1,25 @@
+/* Pollution.css */
+.pollution-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .pollution-table th, .pollution-table td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .pollution-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .pollution-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .pollution-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  

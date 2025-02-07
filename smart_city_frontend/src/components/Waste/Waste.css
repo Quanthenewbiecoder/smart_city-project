@@ -1,0 +1,25 @@
+/* Waste.css */
+.waste-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .waste-table th, .waste-table td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  .waste-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .waste-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .waste-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
