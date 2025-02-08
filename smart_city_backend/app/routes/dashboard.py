@@ -23,7 +23,7 @@ def get_dashboard_data():
         "waste": [{"location": w.location, "bin_fill_level": w.bin_fill_level} for w in waste_data],
         "metering": [{"location": m.location, "water_usage": m.water_usage, "energy_usage": m.energy_usage} for m in metering_data],
     }
-    
+
     return jsonify(response)
 
 from flask import Blueprint
