@@ -2,6 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_cors import CORS
 from app.models.database import db
+import os
 
 migrate = Migrate()
 
@@ -14,10 +15,7 @@ def create_app():
     db.init_app(app)
 
     migrate.init_app(app, db)  # Initialize Flask-Migrate
-
-    # CORS Configuration (Uncomment the one you prefer)
-    # CORS(app)  # Allows all origins (use cautiously in production)
-    CORS(app, resources={r"/api/*": {"origins": "https://bug-free-happiness-44rgx5vgq5xhjxp7-3000.app.github.dev"}})
+    CORS(app)  # Apply CORS globally
 
     # Register Blueprints
     from app.routes.traffic import traffic_bp
@@ -30,7 +28,8 @@ def create_app():
     app.register_blueprint(pollution_bp, url_prefix="/api/pollution")
     app.register_blueprint(waste_bp, url_prefix="/api/waste")
     app.register_blueprint(metering_bp, url_prefix="/api/metering")
-    app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")  # Register dashboard blueprint
+    
+    app.register_blueprint(dashboard_bp, url_prefix="/api/Dashboard")  # Register dashboard blueprint
     app.register_blueprint(home_bp)  # Register home blueprint
 
     return app

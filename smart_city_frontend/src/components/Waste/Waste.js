@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { API_ENDPOINTS } from "../../config/api.config"; // Import API config
-import "./Waste.css";
+import './Waste.css';
 
 const Waste = () => {
   const [wasteData, setWasteData] = useState([]);
@@ -9,8 +8,7 @@ const Waste = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios
-      .get(API_ENDPOINTS.waste) // Use API config
+    axios.get(`${process.env.REACT_APP_API_URL}/waste`)
       .then((response) => {
         setWasteData(response.data);
         setLoading(false);
@@ -22,17 +20,17 @@ const Waste = () => {
       });
   }, []);
 
-  if (loading) return <div className="loading">Loading waste data...</div>;
-  if (error) return <div className="error">{error}</div>;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
-    <div className="waste-container">
+    <div>
       <h2>🗑 Waste Management</h2>
       <table className="waste-table">
         <thead>
           <tr>
             <th>Location</th>
-            <th>Bin Fill Level (%)</th>
+            <th>Bin Fill Level</th>
             <th>Status</th>
           </tr>
         </thead>
