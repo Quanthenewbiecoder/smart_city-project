@@ -1,43 +1,47 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import './Traffic.css';
+import { API_ENDPOINTS } from "../../config/api.config"; // Import API config
+import "./Traffic.css";
 
-const Pollution = () => {
-  const [pollutionData, setPollutionData] = useState([]);
+const Traffic = () => {
+  const [trafficData, setTrafficData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API_URL}/pollution`)
+    axios
+      .get(API_ENDPOINTS.traffic) // Use API config
       .then((response) => {
-        setPollutionData(response.data);
+        setTrafficData(response.data);
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Pollution Data Error:", error);
-        setError("Error fetching pollution data.");
+        console.error("Traffic Data Error:", error);
+        setError("Error fetching traffic data.");
         setLoading(false);
       });
   }, []);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div className="loading">Loading traffic data...</div>;
+  if (error) return <div className="error">{error}</div>;
 
   return (
-    <div>
-      <h2>🌫 Air Pollution</h2>
-      <table className="pollution-table">
+    <div className="traffic-container">
+      <h2>🚦 Traffic Congestion</h2>
+      <table className="traffic-table">
         <thead>
           <tr>
             <th>Location</th>
-            <th>AQI</th>
+            <th>Congestion Level (%)</th>
+            <th>Average Speed (km/h)</th>
           </tr>
         </thead>
         <tbody>
-          {pollutionData.map((p) => (
-            <tr key={p.id}>
-              <td>{p.location}</td>
-              <td>{p.air_quality_index}</td>
+          {trafficData.map((t) => (
+            <tr key={t.id}>
+              <td>{t.location}</td>
+              <td>{t.congestion_level}%</td>
+              <td>{t.average_speed || "N/A"}</td>
             </tr>
           ))}
         </tbody>
@@ -46,4 +50,4 @@ const Pollution = () => {
   );
 };
 
-export default Pollution;
+export default Traffic;

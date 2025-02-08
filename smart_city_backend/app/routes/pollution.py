@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify
+from flask_cors import CORS
 from app.models.database import db, Pollution
 
 pollution_bp = Blueprint('pollution', __name__)
+CORS(pollution_bp)
 
 @pollution_bp.route('/pollution', methods=['GET'])
 def get_pollution_data():

@@ -28,3 +28,40 @@
     background-color: #0056b3;
   }
   
+  .dashboard-container {
+    text-align: center;
+    margin: 20px;
+  }
+  
+  .dashboard-nav {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .dashboard-nav button {
+    padding: 10px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    transition: 0.3s;
+  }
+  
+  .dashboard-nav button:hover {
+    background-color: #0056b3;
+  }
+  
+  .loading {
+    color: blue;
+    font-size: 18px;
+  }
+  
+  .error {
+    color: red;
+    font-size: 18px;
+  }
+  

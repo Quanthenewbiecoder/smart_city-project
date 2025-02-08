@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
-from app.models.database import Traffic
+from app.models.database import db, Traffic
 
 traffic_bp = Blueprint('traffic', __name__)
 CORS(traffic_bp)
@@ -13,8 +13,18 @@ def get_traffic_data():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@traffic_bp.route('/traffic/<int:traffic_id>', methods=['GET'])
+def get_traffic_by_id(traffic_id):
+    try:
+        traffic = Traffic.query.get(traffic_id)
+        if not traffic:
+            return jsonify({"error": "Traffic record not found"}), 404
+        return jsonify({"id": traffic.id, "location": traffic.location, "congestion_level": traffic.congestion_level})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @traffic_bp.route('/traffic', methods=['POST'])
-def update_traffic():
+def add_traffic():
     try:
         data = request.json
         if not data or 'location' not in data or 'congestion_level' not in data:
@@ -24,5 +34,34 @@ def update_traffic():
         db.session.add(new_traffic)
         db.session.commit()
         return jsonify({"message": "Traffic data added"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@traffic_bp.route('/traffic/<int:traffic_id>', methods=['PUT'])
+def update_traffic(traffic_id):
+    try:
+        traffic = Traffic.query.get(traffic_id)
+        if not traffic:
+            return jsonify({"error": "Traffic record not found"}), 404
+
+        data = request.json
+        traffic.location = data.get('location', traffic.location)
+        traffic.congestion_level = data.get('congestion_level', traffic.congestion_level)
+
+        db.session.commit()
+        return jsonify({"message": "Traffic data updated"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@traffic_bp.route('/traffic/<int:traffic_id>', methods=['DELETE'])
+def delete_traffic(traffic_id):
+    try:
+        traffic = Traffic.query.get(traffic_id)
+        if not traffic:
+            return jsonify({"error": "Traffic record not found"}), 404
+
+        db.session.delete(traffic)
+        db.session.commit()
+        return jsonify({"message": "Traffic data deleted"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -31,6 +31,7 @@ const Waste = () => {
           <tr>
             <th>Location</th>
             <th>Bin Fill Level</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -38,6 +39,13 @@ const Waste = () => {
             <tr key={w.id}>
               <td>{w.location}</td>
               <td>{w.bin_fill_level}%</td>
+              <td>
+                {w.bin_fill_level >= 80 ? (
+                  <span className="status-full">Full</span>
+                ) : (
+                  <span className="status-ok">OK</span>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

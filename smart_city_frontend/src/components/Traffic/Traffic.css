@@ -23,3 +23,33 @@
     background-color: #f1f1f1;
   }
   
+  .traffic-container {
+    text-align: center;
+    margin: 20px;
+  }
+  
+  .traffic-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  
+  .traffic-table th, .traffic-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+  }
+  
+  .traffic-table th {
+    background-color: #f4f4f4;
+  }
+  
+  .loading {
+    color: blue;
+    font-size: 18px;
+  }
+  
+  .error {
+    color: red;
+    font-size: 18px;
+  }
+  

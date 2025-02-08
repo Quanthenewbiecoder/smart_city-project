@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify
+from flask_cors import CORS
 from app.models.database import db, Traffic, Pollution, Waste, Metering
 
 dashboard_bp = Blueprint('dashboard', __name__)
+CORS(dashboard_bp)
 
 @dashboard_bp.route('/dashboard', methods=['GET'])
 def get_dashboard_data():
@@ -9,6 +11,11 @@ def get_dashboard_data():
     pollution_data = Pollution.query.all()
     waste_data = Waste.query.all()
     metering_data = Metering.query.all()
+
+    print("Traffic Data:", traffic_data)
+    print("Pollution Data:", pollution_data)
+    print("Waste Data:", waste_data)
+    print("Metering Data:", metering_data)
 
     response = {
         "traffic": [{"location": t.location, "congestion_level": t.congestion_level} for t in traffic_data],
