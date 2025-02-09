@@ -3,33 +3,26 @@ import numpy as np
 from flask import Blueprint, jsonify
 from flask_cors import CORS
 from sklearn.ensemble import RandomForestRegressor
+from app.models.database import db, Traffic, Pollution, Waste, Metering
 
 dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/api/dashboard')
 CORS(dashboard_bp)
 
-def generate_dynamic_data():
-    """ Simulates realistic city data using machine learning models """
-    # Generate past traffic data (Simulated)
-    np.random.seed(42)
-    past_traffic = np.array(range(1, 11)).reshape(-1, 1)
-    traffic_levels = np.array([12, 22, 33, 29, 45, 48, 58, 62, 67, 75]) 
-
-    # Train a Random Forest Regressor
-    model = RandomForestRegressor(n_estimators=50, random_state=42)
-    model.fit(past_traffic, traffic_levels)
-
-    # Predict future traffic levels
-    future_traffic = np.array([[11], [12], [13]])
-    predicted_traffic = model.predict(future_traffic).tolist()
+def get_real_data():
+    """ Fetch real data from the database """
+    traffic_data = Traffic.query.order_by(Traffic.id).all()
+    pollution_data = Pollution.query.order_by(Pollution.id).all()
+    waste_data = Waste.query.order_by(Waste.id).all()
+    metering_data = Metering.query.order_by(Metering.id).all()
 
     return {
-        "traffic": [{"location": f"Zone {i+1}", "congestion_level": int(predicted_traffic[i] + random.randint(-3, 3))} for i in range(3)],
-        "pollution": [{"location": f"Area {i+1}", "air_quality_index": random.randint(35, 120)} for i in range(3)],
-        "waste": [{"location": f"Sector {i+1}", "bin_fill_level": random.randint(10, 95)} for i in range(3)],
-        "metering": [{"location": f"District {i+1}", "water_usage": random.randint(550, 2100), "energy_usage": random.randint(1200, 5200)} for i in range(3)]
+        "traffic": [{"location": t.location, "congestion_level": t.congestion_level} for t in traffic_data],
+        "pollution": [{"location": p.location, "air_quality_index": p.air_quality_index} for p in pollution_data],
+        "waste": [{"location": w.location, "bin_fill_level": w.bin_fill_level} for w in waste_data],
+        "metering": [{"location": m.location, "water_usage": m.water_usage, "energy_usage": m.energy_usage} for m in metering_data]
     }
 
 @dashboard_bp.route('/', methods=['GET'])
 def get_dashboard_data():
-    simulated_data = generate_dynamic_data()
-    return jsonify(simulated_data)
+    real_data = get_real_data()
+    return jsonify(real_data)

@@ -16,7 +16,7 @@ def get_waste_data():
         return jsonify([{
             "id": w.id,
             "location": w.location,
-            "waste_generated": w.waste_generated
+            "waste_generated": w.bin_fill_level
         } for w in data])
     except Exception as e:
         return jsonify({"error": f"Failed to fetch waste data: {str(e)}"}), 500

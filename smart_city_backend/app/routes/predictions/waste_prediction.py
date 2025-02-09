@@ -7,7 +7,7 @@ waste_prediction_bp = Blueprint("waste_prediction", __name__)
 def predict_waste(historical_data):
     # Extract historical data
     ids = np.array([data.id for data in historical_data]).reshape(-1, 1)
-    waste_generated = np.array([data.waste_generated for data in historical_data])
+    waste_generated = np.array([data.bin_fill_level for data in historical_data])
 
     # Train the model
     model = LinearRegression()
