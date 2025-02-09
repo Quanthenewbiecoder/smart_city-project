@@ -1,5 +1,8 @@
 import numpy as np
+from flask import Blueprint, jsonify
 from sklearn.linear_model import LinearRegression
+
+waste_prediction_bp = Blueprint("waste_prediction", __name__)
 
 def predict_waste(historical_data):
     # Extract historical data
@@ -20,3 +23,17 @@ def predict_waste(historical_data):
             for i in range(3)
         ]
     }
+
+# Define an API endpoint
+@waste_prediction_bp.route("/predict", methods=["GET"])
+def get_waste_prediction():
+    # Dummy historical data for testing (replace with actual database query)
+    class DummyData:
+        def __init__(self, _id, waste_generated):
+            self.id = _id
+            self.waste_generated = waste_generated
+
+    historical_data = [DummyData(i, np.random.randint(100, 500)) for i in range(1, 11)]
+    prediction_result = predict_waste(historical_data)
+
+    return jsonify(prediction_result)
