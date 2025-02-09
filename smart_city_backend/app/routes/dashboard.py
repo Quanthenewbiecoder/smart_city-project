@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify
 from flask_cors import CORS
 from sklearn.ensemble import RandomForestRegressor
 
-dashboard_bp = Blueprint('dashboard', __name__)
+dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/api/dashboard')
 CORS(dashboard_bp)
 
 def generate_dynamic_data():

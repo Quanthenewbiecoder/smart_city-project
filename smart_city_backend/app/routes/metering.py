@@ -5,7 +5,7 @@ from app.models.database import db, Metering
 # Importing prediction function
 from app.routes.predictions.metering_prediction import predict_metering_usage
 
-metering_bp = Blueprint('metering', __name__)
+metering_bp = Blueprint('metering', __name__, url_prefix='/api/metering')
 CORS(metering_bp)
 
 # Get all metering data
@@ -80,12 +80,12 @@ def predict_metering():
     try:
         # Fetch historical data for prediction
         historical_data = Metering.query.order_by(Metering.id).all()
-        if not historical_data:
-            return jsonify({"error": "Not enough data for prediction"}), 400
+        if len(historical_data) < 3:
+            return jsonify({"error": "At least 3 data points required for prediction"}), 400
 
         # Call prediction function
         prediction = predict_metering_usage(historical_data)
-        return jsonify({"predicted_metering": prediction}), 200
+        return jsonify(prediction), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
