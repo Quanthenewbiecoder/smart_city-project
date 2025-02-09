@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
-from app.models.database import db, Metering
+from app.models.database import db, Metering, Location
 
 # Importing prediction function
 from app.routes.predictions.metering_prediction import predict_metering_usage
@@ -14,7 +14,7 @@ def get_metering_data():
     data = Metering.query.all()
     return jsonify([{
         "id": m.id, 
-        "location": m.location, 
+        "location": Location.query.get(m.location_id).name, 
         "water_usage": m.water_usage, 
         "energy_usage": m.energy_usage
     } for m in data])
@@ -27,7 +27,7 @@ def get_metering_by_id(metering_id):
         return jsonify({"error": "Metering record not found"}), 404
     return jsonify({
         "id": metering.id, 
-        "location": metering.location, 
+        "location": Location.query.get(metering.location_id).name, 
         "water_usage": metering.water_usage, 
         "energy_usage": metering.energy_usage
     })
@@ -36,11 +36,11 @@ def get_metering_by_id(metering_id):
 @metering_bp.route('/', methods=['POST'])
 def add_metering():
     data = request.json
-    if not data or 'location' not in data or 'water_usage' not in data or 'energy_usage' not in data:
+    if not data or 'location_id' not in data or 'water_usage' not in data or 'energy_usage' not in data:
         return jsonify({"error": "Missing data"}), 400
 
     new_metering = Metering(
-        location=data['location'], 
+        location_id=data['location_id'], 
         water_usage=data['water_usage'], 
         energy_usage=data['energy_usage']
     )
@@ -56,7 +56,7 @@ def update_metering(metering_id):
         return jsonify({"error": "Metering record not found"}), 404
 
     data = request.json
-    metering.location = data.get('location', metering.location)
+    metering.location_id = data.get('location_id', metering.location_id)
     metering.water_usage = data.get('water_usage', metering.water_usage)
     metering.energy_usage = data.get('energy_usage', metering.energy_usage)
 

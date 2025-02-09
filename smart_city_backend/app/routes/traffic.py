@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
-from app.models.database import db, Traffic
+from app.models.database import db, Traffic, Location
 
 # Import the prediction function
 from app.routes.predictions.traffic_prediction import predict_traffic
@@ -15,7 +15,7 @@ def get_traffic_data():
         data = Traffic.query.all()
         return jsonify([{
             "id": t.id, 
-            "location": t.location, 
+            "location": Location.query.get(t.location_id).name, 
             "congestion_level": t.congestion_level
         } for t in data])
     except Exception as e:
@@ -26,11 +26,11 @@ def get_traffic_data():
 def add_traffic():
     try:
         data = request.json
-        if not data or 'location' not in data or 'congestion_level' not in data:
-            return jsonify({"error": "Missing required fields: 'location' and 'congestion_level'"}), 400
+        if not data or 'location_id' not in data or 'congestion_level' not in data:
+            return jsonify({"error": "Missing required fields: 'location_id' and 'congestion_level'"}), 400
         
         new_traffic = Traffic(
-            location=data['location'], 
+            location_id=data['location_id'], 
             congestion_level=data['congestion_level']
         )
         db.session.add(new_traffic)
@@ -48,7 +48,7 @@ def update_traffic(traffic_id):
             return jsonify({"error": "Traffic record not found"}), 404
 
         data = request.json
-        traffic.location = data.get('location', traffic.location)
+        traffic.location_id = data.get('location_id', traffic.location_id)
         traffic.congestion_level = data.get('congestion_level', traffic.congestion_level)
 
         db.session.commit()

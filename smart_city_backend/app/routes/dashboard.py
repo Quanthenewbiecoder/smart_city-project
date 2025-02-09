@@ -3,7 +3,7 @@ import numpy as np
 from flask import Blueprint, jsonify
 from flask_cors import CORS
 from sklearn.ensemble import RandomForestRegressor
-from app.models.database import db, Traffic, Pollution, Waste, Metering
+from app.models.database import db, Traffic, Pollution, Waste, Metering, Location
 
 dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/api/dashboard')
 CORS(dashboard_bp)
@@ -16,10 +16,10 @@ def get_real_data():
     metering_data = Metering.query.order_by(Metering.id).all()
 
     return {
-        "traffic": [{"location": t.location, "congestion_level": t.congestion_level} for t in traffic_data],
-        "pollution": [{"location": p.location, "air_quality_index": p.air_quality_index} for p in pollution_data],
-        "waste": [{"location": w.location, "bin_fill_level": w.bin_fill_level} for w in waste_data],
-        "metering": [{"location": m.location, "water_usage": m.water_usage, "energy_usage": m.energy_usage} for m in metering_data]
+        "traffic": [{"location": Location.query.get(t.location_id).name, "congestion_level": t.congestion_level} for t in traffic_data],
+        "pollution": [{"location": Location.query.get(p.location_id).name, "air_quality_index": p.air_quality_index} for p in pollution_data],
+        "waste": [{"location": Location.query.get(w.location_id).name, "bin_fill_level": w.bin_fill_level} for w in waste_data],
+        "metering": [{"location": Location.query.get(m.location_id).name, "water_usage": m.water_usage, "energy_usage": m.energy_usage} for m in metering_data]
     }
 
 @dashboard_bp.route('/', methods=['GET'])

@@ -1,6 +1,7 @@
 import numpy as np
 from flask import Blueprint, jsonify
 from sklearn.linear_model import LinearRegression
+from app.models.database import db, Pollution
 
 pollution_prediction_bp = Blueprint("pollution_prediction", __name__)
 
@@ -27,13 +28,16 @@ def predict_air_quality(historical_data):
 # Define an API endpoint
 @pollution_prediction_bp.route("/predict", methods=["GET"])
 def get_pollution_prediction():
-    # Dummy historical data for testing (replace with actual database query)
-    class DummyData:
-        def __init__(self, _id, air_quality_index):
-            self.id = _id
-            self.air_quality_index = air_quality_index
+    try:
+        # Fetch real historical pollution data from the database
+        historical_data = Pollution.query.order_by(Pollution.id).all()
 
-    historical_data = [DummyData(i, np.random.randint(50, 150)) for i in range(1, 11)]
-    prediction_result = predict_air_quality(historical_data)
+        # Ensure there is enough data for prediction
+        if not historical_data or len(historical_data) < 3:
+            return jsonify({"error": "Not enough data for prediction"}), 400
 
-    return jsonify(prediction_result)
+        prediction_result = predict_air_quality(historical_data)
+        return jsonify(prediction_result)
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to predict air quality: {str(e)}"}), 500

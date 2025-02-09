@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import CORS
-from app.models.database import db, Waste
+from app.models.database import db, Waste, Location
 
 # Import prediction function
 from app.routes.predictions.waste_prediction import predict_waste
@@ -15,8 +15,8 @@ def get_waste_data():
         data = Waste.query.all()
         return jsonify([{
             "id": w.id,
-            "location": w.location,
-            "waste_generated": w.bin_fill_level
+            "location": Location.query.get(w.location_id).name,
+            "bin_fill_level": w.bin_fill_level
         } for w in data])
     except Exception as e:
         return jsonify({"error": f"Failed to fetch waste data: {str(e)}"}), 500
@@ -26,12 +26,12 @@ def get_waste_data():
 def add_waste():
     try:
         data = request.json
-        if not data or 'location' not in data or 'waste_generated' not in data:
+        if not data or 'location_id' not in data or 'bin_fill_level' not in data:
             return jsonify({"error": "Missing required fields"}), 400
         
         new_waste = Waste(
-            location=data['location'],
-            waste_generated=data['waste_generated']
+            location_id=data['location_id'],
+            bin_fill_level=data['bin_fill_level']
         )
         db.session.add(new_waste)
         db.session.commit()
