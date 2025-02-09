@@ -5,22 +5,25 @@ from app.models.database import db, Pollution
 # Import prediction function
 from app.routes.predictions.pollution_prediction import predict_air_quality
 
-pollution_bp = Blueprint('pollution', __name__, url_prefix='/api')
+pollution_bp = Blueprint('pollution', __name__, url_prefix='/api/pollution')
 CORS(pollution_bp)
 
 # Get all pollution data
 @pollution_bp.route('/', methods=['GET'])
 def get_pollution_data():
-    data = Pollution.query.all()
-    return jsonify([{
-        "id": p.id, 
-        "location": p.location, 
-        "air_quality_index": p.air_quality_index
-    } for p in data])
+    try:
+        data = Pollution.query.all()
+        return jsonify([{
+            "id": p.id, 
+            "location": p.location, 
+            "air_quality_index": p.air_quality_index
+        } for p in data])
+    except Exception as e:
+        return jsonify({"error": f"Failed to fetch pollution data: {str(e)}"}), 500
 
 # Add new pollution data
 @pollution_bp.route('/', methods=['POST'])
-def update_pollution():
+def add_pollution():
     try:
         data = request.json
         if not data or 'location' not in data or 'air_quality_index' not in data:
@@ -38,9 +41,9 @@ def update_pollution():
         db.session.add(new_pollution)
         db.session.commit()
         
-        return jsonify({"message": "Pollution data added"}), 201
+        return jsonify({"message": "Pollution data added successfully"}), 201
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Failed to add pollution data: {str(e)}"}), 500
 
 # Predict future air quality
 @pollution_bp.route('/predict', methods=['GET'])
@@ -48,12 +51,12 @@ def predict_pollution():
     try:
         # Fetch historical data for prediction
         historical_data = Pollution.query.order_by(Pollution.id).all()
-        if not historical_data:
+        if not historical_data or len(historical_data) < 3:
             return jsonify({"error": "Not enough data for prediction"}), 400
 
         # Call prediction function
         prediction = predict_air_quality(historical_data)
-        return jsonify({"predicted_air_quality": prediction}), 200
+        return jsonify(prediction), 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Failed to predict air quality: {str(e)}"}), 500
