@@ -4,32 +4,41 @@ from flask_cors import CORS
 from app.models.database import db
 import os
 
+# Initialize Migrate and CORS
 migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
+
+    # Database Configuration
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///smart_city.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    # Initialize the database and models
+    # Initialize Extensions
     db.init_app(app)
+    migrate.init_app(app, db)
+    CORS(app)
 
-    migrate.init_app(app, db)  # Initialize Flask-Migrate
-    CORS(app)  # Apply CORS globally
-
-    # Register Blueprints
+    # Import and Register Blueprints
     from app.routes.traffic import traffic_bp
     from app.routes.pollution import pollution_bp
     from app.routes.waste import waste_bp
     from app.routes.metering import metering_bp
-    from app.routes.dashboard import dashboard_bp, home_bp  # Import both blueprints
+    from app.routes.dashboard import dashboard_bp  # Ensure this is correct
+    from app.routes.home import home_bp  
 
-    app.register_blueprint(traffic_bp, url_prefix="/api/traffic")
-    app.register_blueprint(pollution_bp, url_prefix="/api/pollution")
-    app.register_blueprint(waste_bp, url_prefix="/api/waste")
-    app.register_blueprint(metering_bp, url_prefix="/api/metering")
-    
-    app.register_blueprint(dashboard_bp, url_prefix="/api/Dashboard")  # Register dashboard blueprint
-    app.register_blueprint(home_bp)  # Register home blueprint
+    # Register Blueprints with their respective URL prefixes
+    blueprints = [
+        (traffic_bp, "/api/traffic"),
+        (pollution_bp, "/api/pollution"),
+        (waste_bp, "/api/waste"),
+        (metering_bp, "/api/metering"),
+        (dashboard_bp, "/dashboard"),  # Registered at '/dashboard'
+        (home_bp, "/api/home"),
+    ]
+
+    # Register each blueprint
+    for bp, prefix in blueprints:
+        app.register_blueprint(bp, url_prefix=prefix)
 
     return app
