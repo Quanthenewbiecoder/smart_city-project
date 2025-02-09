@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from flask import Blueprint, jsonify
 from sklearn.linear_model import LinearRegression
 from app.models.database import db, Pollution
@@ -6,17 +7,21 @@ from app.models.database import db, Pollution
 pollution_prediction_bp = Blueprint("pollution_prediction", __name__)
 
 def predict_air_quality(historical_data):
-    # Extract historical data
+    """ Predicts air quality with weather-based randomization """
     ids = np.array([data.id for data in historical_data]).reshape(-1, 1)
     air_quality_index = np.array([data.air_quality_index for data in historical_data])
 
-    # Train the model
     model = LinearRegression()
     model.fit(ids, air_quality_index)
 
-    # Predict for the next 3 periods
-    future_ids = np.array([[ids[-1][0] + 1], [ids[-1][0] + 2], [ids[-1][0] + 3]])
-    predicted_air_quality = model.predict(future_ids).tolist()
+    future_ids = np.array([[ids[-1][0] + i] for i in range(1, 4)])
+    predicted_air_quality = model.predict(future_ids)
+
+    # Simulate real-world pollution effects
+    for i in range(len(predicted_air_quality)):
+        weather_effect = random.choice([-10, 0, 5, 15])  # Rain, storms, high winds
+        predicted_air_quality[i] += weather_effect
+        predicted_air_quality[i] = max(0, predicted_air_quality[i])  # No negative pollution
 
     return {
         "next_periods": [
@@ -25,14 +30,10 @@ def predict_air_quality(historical_data):
         ]
     }
 
-# Define an API endpoint
 @pollution_prediction_bp.route("/predict", methods=["GET"])
 def get_pollution_prediction():
     try:
-        # Fetch real historical pollution data from the database
         historical_data = Pollution.query.order_by(Pollution.id).all()
-
-        # Ensure there is enough data for prediction
         if not historical_data or len(historical_data) < 3:
             return jsonify({"error": "Not enough data for prediction"}), 400
 
