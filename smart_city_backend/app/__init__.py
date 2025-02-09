@@ -4,14 +4,14 @@ from flask_cors import CORS
 from app.models.database import db
 import os
 
-# Initialize Migrate and CORS
+# Initialize Migrate
 migrate = Migrate()
 
 def create_app():
     app = Flask(__name__)
 
-    # Database Configuration
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///smart_city.db"
+    # Load Configuration
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URI", "sqlite:///smart_city.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # Initialize Extensions
@@ -20,21 +20,25 @@ def create_app():
     CORS(app)
 
     # Import and Register Blueprints
-    from app.routes.traffic import traffic_bp
-    from app.routes.pollution import pollution_bp
-    from app.routes.waste import waste_bp
-    from app.routes.metering import metering_bp
-    from app.routes.dashboard import dashboard_bp  # Ensure this is correct
-    from app.routes.home import home_bp  
+    from app.routes import (
+        traffic, pollution, waste, metering, dashboard, home
+    )
+    from app.routes.predictions import (
+        traffic_prediction, pollution_prediction, waste_prediction, metering_prediction
+    )
 
-    # Register Blueprints with their respective URL prefixes
+    # Blueprint registration mapping
     blueprints = [
-        (traffic_bp, "/api/traffic"),
-        (pollution_bp, "/api/pollution"),
-        (waste_bp, "/api/waste"),
-        (metering_bp, "/api/metering"),
-        (dashboard_bp, "/dashboard"),  # Registered at '/dashboard'
-        (home_bp, "/api/home"),
+        (traffic.traffic_bp, "/api/traffic"),
+        (pollution.pollution_bp, "/api/pollution"),
+        (waste.waste_bp, "/api/waste"),
+        (metering.metering_bp, "/api/metering"),
+        (dashboard.dashboard_bp, "/dashboard"),
+        (home.home_bp, "/api/home"),
+        (traffic_prediction.traffic_prediction_bp, "/api/predictions/traffic"),
+        (pollution_prediction.pollution_prediction_bp, "/api/predictions/pollution"),
+        (waste_prediction.waste_prediction_bp, "/api/predictions/waste"),
+        (metering_prediction.metering_prediction_bp, "/api/predictions/metering"),
     ]
 
     # Register each blueprint
