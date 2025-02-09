@@ -76,12 +76,12 @@ def predict_traffic_congestion():
     try:
         # Fetch historical traffic data
         historical_data = Traffic.query.order_by(Traffic.id).all()
-        if not historical_data:
+        if not historical_data or len(historical_data) < 3:
             return jsonify({"error": "Not enough data for prediction"}), 400
 
         # Call the prediction function
-        prediction = predict_traffic(historical_data)
-        return jsonify({"predicted_congestion_levels": prediction}), 200
+        prediction_result = predict_traffic(historical_data)
+        return jsonify(prediction_result), 200
 
     except Exception as e:
         return jsonify({"error": f"Failed to predict traffic congestion: {str(e)}"}), 500
