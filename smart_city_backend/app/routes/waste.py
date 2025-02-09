@@ -2,51 +2,69 @@ from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 from app.models.database import db, Waste
 
-waste_bp = Blueprint('waste', __name__)
+# Import prediction function
+from app.routes.predictions.waste_prediction import predict_waste
+
+waste_bp = Blueprint('waste', __name__, url_prefix='/api')
 CORS(waste_bp)
 
+# Get all waste data
 @waste_bp.route('/', methods=['GET'])
 def get_waste_data():
-    data = Waste.query.all()
-    return jsonify([{"id": w.id, "location": w.location, "bin_fill_level": w.bin_fill_level} for w in data])
+    try:
+        data = Waste.query.all()
+        return jsonify([{
+            "id": w.id,
+            "location": w.location,
+            "waste_generated": w.waste_generated
+        } for w in data])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-@waste_bp.route('/<int:waste_id>', methods=['GET'])
-def get_waste_by_id(waste_id):
-    waste = Waste.query.get(waste_id)
-    if not waste:
-        return jsonify({"error": "Waste record not found"}), 404
-    return jsonify({"id": waste.id, "location": waste.location, "bin_fill_level": waste.bin_fill_level})
-
+# Add new waste data
 @waste_bp.route('/', methods=['POST'])
 def add_waste():
-    data = request.json
-    if not data or 'location' not in data or 'bin_fill_level' not in data:
-        return jsonify({"error": "Missing data"}), 400
+    try:
+        data = request.json
+        if not data or 'location' not in data or 'waste_generated' not in data:
+            return jsonify({"error": "Missing required fields"}), 400
+        
+        new_waste = Waste(
+            location=data['location'],
+            waste_generated=data['waste_generated']
+        )
+        db.session.add(new_waste)
+        db.session.commit()
+        return jsonify({"message": "Waste data added"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-    new_waste = Waste(location=data['location'], bin_fill_level=data['bin_fill_level'])
-    db.session.add(new_waste)
-    db.session.commit()
-    return jsonify({"message": "Waste data added"}), 201
-
-@waste_bp.route('/<int:waste_id>', methods=['PUT'])
-def update_waste(waste_id):
-    waste = Waste.query.get(waste_id)
-    if not waste:
-        return jsonify({"error": "Waste record not found"}), 404
-
-    data = request.json
-    waste.location = data.get('location', waste.location)
-    waste.bin_fill_level = data.get('bin_fill_level', waste.bin_fill_level)
-
-    db.session.commit()
-    return jsonify({"message": "Waste data updated"}), 200
-
+# Delete waste data by ID
 @waste_bp.route('/<int:waste_id>', methods=['DELETE'])
 def delete_waste(waste_id):
-    waste = Waste.query.get(waste_id)
-    if not waste:
-        return jsonify({"error": "Waste record not found"}), 404
+    try:
+        waste = Waste.query.get(waste_id)
+        if not waste:
+            return jsonify({"error": "Waste record not found"}), 404
+        
+        db.session.delete(waste)
+        db.session.commit()
+        return jsonify({"message": "Waste data deleted"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-    db.session.delete(waste)
-    db.session.commit()
-    return jsonify({"message": "Waste data deleted"}), 200
+# Predict future waste generation
+@waste_bp.route('/predict', methods=['GET'])
+def predict_waste_generation():
+    try:
+        # Fetch historical data for prediction
+        historical_data = Waste.query.order_by(Waste.id).all()
+        if not historical_data:
+            return jsonify({"error": "Not enough data for prediction"}), 400
+
+        # Call prediction function
+        prediction = predict_waste(historical_data)
+        return jsonify({"predicted_waste": prediction}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
