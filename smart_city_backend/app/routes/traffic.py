@@ -1,29 +1,29 @@
 import random
 from flask import Blueprint, jsonify
 from flask_cors import CORS
-from app.models.database import db, Location, Traffic
-from app.routes.predictions.traffic_prediction import predict_traffic
+from app.models.database import db, Location, Waste
+from app.routes.predictions.waste_prediction import predict_waste
 
-traffic_bp = Blueprint('traffic', __name__, url_prefix='/api/traffic')
-CORS(traffic_bp)
+waste_bp = Blueprint('waste', __name__, url_prefix='/api/waste')
+CORS(waste_bp)
 
-def generate_random_traffic_data():
-    """ Auto-generates random traffic data only if locations exist and prevents duplicates """
+def generate_random_waste_data():
+    """ Auto-generates random waste data only if locations exist and prevents duplicates """
     locations = Location.query.all()
     if not locations:
-        print("⚠️ No locations found! Skipping traffic data generation.")
+        print("⚠️ No locations found! Skipping waste data generation.")
         return
-
+    
     for loc in locations:
-        db.session.add(Traffic(location_id=loc.id, congestion_level=random.randint(20, 90)))
+        db.session.add(Waste(location_id=loc.id, bin_fill_level=random.randint(10, 100)))
     db.session.commit()
-    print("✅ Traffic data added.")
+    print("✅ Waste data added.")
 
-@traffic_bp.route('/', methods=['GET'])
-def get_traffic_data():
-    data = Traffic.query.all()
+@waste_bp.route('/', methods=['GET'])
+def get_waste_data():
+    data = Waste.query.all()
     return jsonify([{
-        "id": t.id,
-        "location": Location.query.get(t.location_id).name,
-        "congestion_level": t.congestion_level
-    } for t in data])
+        "id": w.id,
+        "location": Location.query.get(w.location_id).name,
+        "bin_fill_level": w.bin_fill_level
+    } for w in data])
