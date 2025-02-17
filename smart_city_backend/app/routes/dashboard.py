@@ -11,23 +11,21 @@ from app.routes.predictions.metering_prediction import predict_metering_usage
 dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/api/dashboard')
 CORS(dashboard_bp)
 
-def get_real_data():
-    """ Fetches the latest real-time data from the database. """
+def get_latest_data():
+    """ Fetches only the latest real-time data from the database, avoiding excessive old data. """
     try:
-        traffic_data = Traffic.query.order_by(Traffic.id).all()
-        pollution_data = Pollution.query.order_by(Pollution.id).all()
-        waste_data = Waste.query.order_by(Waste.id).all()
-        metering_data = Metering.query.order_by(Metering.id).all()
+        def get_latest_entries(model):
+            return model.query.order_by(model.id.desc()).limit(5).all()  # Only fetch the latest 5 entries
 
         def get_location_name(location_id):
             location = Location.query.get(location_id)
             return location.name if location else "Unknown Location"
 
         return {
-            "traffic": [{"location": get_location_name(t.location_id), "congestion_level": t.congestion_level} for t in traffic_data],
-            "pollution": [{"location": get_location_name(p.location_id), "air_quality_index": p.air_quality_index} for p in pollution_data],
-            "waste": [{"location": get_location_name(w.location_id), "bin_fill_level": w.bin_fill_level} for w in waste_data],
-            "metering": [{"location": get_location_name(m.location_id), "water_usage": m.water_usage, "energy_usage": m.energy_usage} for m in metering_data]
+            "traffic": [{"location": get_location_name(t.location_id), "congestion_level": t.congestion_level} for t in get_latest_entries(Traffic)],
+            "pollution": [{"location": get_location_name(p.location_id), "air_quality_index": p.air_quality_index} for p in get_latest_entries(Pollution)],
+            "waste": [{"location": get_location_name(w.location_id), "bin_fill_level": w.bin_fill_level} for w in get_latest_entries(Waste)],
+            "metering": [{"location": get_location_name(m.location_id), "water_usage": m.water_usage, "energy_usage": m.energy_usage} for m in get_latest_entries(Metering)]
         }
 
     except Exception as e:
@@ -35,6 +33,6 @@ def get_real_data():
 
 @dashboard_bp.route('/', methods=['GET'])
 def get_dashboard_data():
-    """ API endpoint to get real-time dashboard data. """
-    data = get_real_data()
+    """ API endpoint to get real-time dashboard data with limited entries. """
+    data = get_latest_data()
     return jsonify(data)
