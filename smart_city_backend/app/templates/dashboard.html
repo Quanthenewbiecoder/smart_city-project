@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart City - Full Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Smart City - Recent Records</h1>
+    <nav>
+      <!-- Corrected the link to use Flask route -->
+      <a href="{{ url_for('frontend.home') }}">Home</a>
+    </nav>
+  </header>
+
+  <main id="dashboard">
+    <section class="category" id="traffic">
+      <h2>Traffic</h2>
+      <div class="data-cards" id="traffic-cards"></div>
+      <canvas id="traffic-chart"></canvas>
+    </section>
+
+    <section class="category" id="pollution">
+      <h2>Pollution</h2>
+      <div class="data-cards" id="pollution-cards"></div>
+      <canvas id="pollution-chart"></canvas>
+    </section>
+
+    <section class="category" id="waste">
+      <h2>Waste</h2>
+      <div class="data-cards" id="waste-cards"></div>
+      <canvas id="waste-chart"></canvas>
+    </section>
+
+    <section class="category" id="metering">
+      <h2>Metering</h2>
+      <div class="data-cards" id="metering-cards"></div>
+      <canvas id="metering-chart"></canvas>
+    </section>
+  </main>
+
+  <!-- Include Chart.js before your custom script -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Your custom JS file -->
+  <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+</body>
+</html>

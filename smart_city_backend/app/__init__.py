@@ -21,7 +21,7 @@ def create_app():
 
     # Import and Register Blueprints
     from app.routes import (
-        traffic, pollution, waste, metering, dashboard, home
+        traffic, pollution, waste, metering, dashboard, home, frontend
     )
     from app.routes.predictions import (
         traffic_prediction, pollution_prediction, waste_prediction, metering_prediction
@@ -39,6 +39,7 @@ def create_app():
         (pollution_prediction.pollution_prediction_bp, "/api/predictions/pollution"),
         (waste_prediction.waste_prediction_bp, "/api/predictions/waste"),
         (metering_prediction.metering_prediction_bp, "/api/predictions/metering"),
+        (frontend.frontend_bp, "/"),
     ]
 
     # Register each blueprint
